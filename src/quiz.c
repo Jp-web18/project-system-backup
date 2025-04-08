@@ -1,6 +1,6 @@
 #include "config.h"
-#include "quiz.h"
-#include "file_handling.h"
+
+
 
 void view_take_quizzes() {
     system(CLEAR);  // Use platform-independent CLEAR macro defined in config.h

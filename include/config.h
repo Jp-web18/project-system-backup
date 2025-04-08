@@ -16,4 +16,15 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+
+
+#include "make_quiz.h"
+#include "quiz.h"
+#include "students_data.h"
+#include "file_handling.h"
+
+
+
+
+
 #endif

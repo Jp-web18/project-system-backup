@@ -1,6 +1,6 @@
 #include "config.h"
-#include "make_quiz.h"
-#include "file_handling.h"
+
+
 
 void make_quiz_menu() {
     int choice;

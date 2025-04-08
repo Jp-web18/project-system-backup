@@ -1,12 +1,10 @@
 #include "config.h"
-#include "make_quiz.h"
-#include "quiz.h"
-#include "students_data.h"
 
 int main() {
     int choice;
+    int running = 1; // Flag variable to control the loop
 
-    while (1) {
+    while (running) {
         system(CLEAR); // or "cls" on Windows
         printf("\033[1;34mWelcome to the QuizWhiz System\033[0m\n\n");
         printf("[1] Make a Quiz\n");
@@ -15,6 +13,7 @@ int main() {
         printf("[4] Exit the system\n\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
+        getchar(); // Consume the newline character left in the buffer
 
         switch (choice) {
             case 1:
@@ -28,12 +27,16 @@ int main() {
                 break;
             case 4:
                 printf("Exiting the system...\n");
-                exit(0);
+                running = 0; // Set the flag to exit the loop
+                break;
             default:
                 printf("Invalid choice. Please try again.\n");
                 sleep(1);
         }
     }
+
+    printf("Press Enter to exit...\n");
+    getchar(); // Wait for user input before exiting
 
     return 0;
 }

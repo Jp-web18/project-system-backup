@@ -1,5 +1,6 @@
 #include "config.h"
-#include "students_data.h"
+
+
 
 void view_student_data() {
     system(CLEAR);
