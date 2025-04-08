@@ -1,25 +1,43 @@
 #include "config.h"
+#include "students_data.h"
 
+void view_student_data() {
+    system(CLEAR);
 
-void displayStudentData() {
-    StudentResult results[MAX_STUDENTS];
-    int numResults = 0;
+    DIR *d = opendir("records");
+    struct dirent *dir;
 
-    loadStudentResults(results, &numResults);
-
-    printf("\n" COLOR_CYAN "Students Data:\n" COLOR_RESET);
-    if (numResults > 0) {
-        printf("%-20s %-20s %-10s %-15s\n", "Students name", "Quiz name", "Score", "Date");
-        printf("-------------------- -------------------- ---------- ----------------\n");
-        for (int i = 0; i < numResults; i++) {
-            printf("%-20s %-20s %d/%d       %-15s\n",
-                   results[i].name,
-                   results[i].quizName,
-                   results[i].score,
-                   results[i].totalItems,
-                   results[i].submissionDate);
-        }
-    } else {
-        printf(COLOR_YELLOW "No student data available yet.\n" COLOR_RESET);
+    if (!d) {
+        printf("No student records found.\n");
+        sleep(2);
+        return;
     }
+
+    printf("Students name\tQuiz name\tScore\tDate\n");
+
+    while ((dir = readdir(d)) != NULL) {
+        if (strstr(dir->d_name, ".rec")) {
+            char filepath[256];
+            snprintf(filepath, sizeof(filepath), "records/%s", dir->d_name);
+            FILE *fp = fopen(filepath, "r");
+
+            if (!fp) continue;
+
+            char name[100], section[50], pc[50], score[20];
+            fgets(name, sizeof(name), fp);
+            fgets(section, sizeof(section), fp);
+            fgets(pc, sizeof(pc), fp);
+            fgets(score, sizeof(score), fp);
+
+            char quiz[50];
+            sscanf(dir->d_name, "%[^_]", quiz);
+            printf("%s\t%s\t%s", strtok(name + 6, "\n"), quiz, score + 7);
+
+            fclose(fp);
+        }
+    }
+
+    closedir(d);
+    printf("\n");
+    getchar(); getchar(); // Pause
 }

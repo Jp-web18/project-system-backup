@@ -1,12 +1,8 @@
 #ifndef MAKE_QUIZ_H
 #define MAKE_QUIZ_H
 
-
-
-
-// Function prototypes for making a quiz
-void makeQuizMenu();
-void createNewQuiz();
-void editExistingQuizzes(); // Placeholder for future functionality
+void make_quiz_menu();
+void create_new_quiz();
+void edit_existing_quiz();
 
 #endif

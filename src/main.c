@@ -1,37 +1,39 @@
 #include "config.h"
-
+#include "make_quiz.h"
+#include "quiz.h"
+#include "students_data.h"
 
 int main() {
     int choice;
 
-    printf(COLOR_CYAN "Welcome to the QuizWhiz System\n" COLOR_RESET);
-
-    do {
-        printf("\n[1] Make a Quiz\n");
-        printf("[2] View and Take Quizzes\n");
+    while (1) {
+        system(CLEAR); // or "cls" on Windows
+        printf("\033[1;34mWelcome to the QuizWhiz System\033[0m\n\n");
+        printf("[1] Make a Quiz\n");
+        printf("[2] View and Take Quizes\n");
         printf("[3] View student's data\n");
-        printf("[4] Exit the system\n");
+        printf("[4] Exit the system\n\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
-        getchar(); // Consume newline
 
         switch (choice) {
             case 1:
-                makeQuizMenu();
+                make_quiz_menu();
                 break;
             case 2:
-                takeQuizMenu();
+                view_take_quizzes();
                 break;
             case 3:
-                displayStudentData();
+                view_student_data();
                 break;
             case 4:
-                printf("Exiting the QuizWhiz System. Goodbye!\n");
-                break;
+                printf("Exiting the system...\n");
+                exit(0);
             default:
-                printf(COLOR_RED "Invalid choice. Please try again.\n" COLOR_RESET);
+                printf("Invalid choice. Please try again.\n");
+                sleep(1);
         }
-    } while (choice != 4);
+    }
 
     return 0;
 }

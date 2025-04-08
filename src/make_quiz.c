@@ -1,100 +1,110 @@
 #include "config.h"
+#include "make_quiz.h"
+#include "file_handling.h"
 
-
-void makeQuizMenu() {
+void make_quiz_menu() {
     int choice;
 
-    do {
-        printf("\n" COLOR_CYAN "Make a quiz\n" COLOR_RESET);
+    while (1) {
+        system(CLEAR); 
+        printf("Make a quiz\n\n");
         printf("[1] Make another quiz\n");
-        printf("[2] Edit existing quizzes (Not implemented yet)\n");
-        printf("[3] Back to main menu\n");
+        printf("[2] Edit existing quizzes\n");
+        printf("[3] Back to main menu\n\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
-        getchar(); // Consume newline
 
         switch (choice) {
             case 1:
-                createNewQuiz();
+                create_new_quiz();
                 break;
             case 2:
-                printf(COLOR_YELLOW "Editing quizzes is not implemented yet.\n" COLOR_RESET);
+                edit_existing_quiz();
                 break;
             case 3:
-                printf("Returning to main menu.\n");
-                break;
+                return;
             default:
-                printf(COLOR_RED "Invalid choice. Please try again.\n" COLOR_RESET);
+                printf("Invalid choice. Try again.\n");
+                sleep(1);
         }
-    } while (choice != 3);
+    }
 }
 
-void createNewQuiz() {
-    Quiz newQuiz;
-    int i;
-    int done = 0;
+void create_new_quiz() {
+    char filename[100];
+    int num_items, duration;
+    char correct_answers[100];
+    FILE *quiz_file;  // Declare quiz_file variable here
 
-    printf("\n" COLOR_YELLOW "Set up your new quiz:\n" COLOR_RESET);
+    printf("Enter quiz file name: ");
+    scanf("%s", filename);
 
-    printf("Enter the filename for this quiz (without extension): ");
-    fgets(newQuiz.filename, MAX_FILENAME_LENGTH, stdin);
-    newQuiz.filename[strcspn(newQuiz.filename, "\n")] = 0; // Remove trailing newline
+    // Ensure the quizzes directory exists
+    // For Windows, check if the directory exists using GetFileAttributes
+    if (access("quizzes", F_OK) == -1) {
+        // Directory does not exist, try to create it
+        if (mkdir("quizzes") != 0) {
+            perror("Failed to create quizzes directory");
+            return;
+        }
+    }
 
-    printf("Enter the name of the quiz: ");
-    fgets(newQuiz.name, MAX_QUIZ_NAME_LENGTH, stdin);
-    newQuiz.name[strcspn(newQuiz.name, "\n")] = 0;
+    // Check if file already exists
+    quiz_file = fopen(filename, "r");
+    if (quiz_file) {
+        printf("Quiz file already exists. Do you want to overwrite it? (y/n): ");
+        char choice;
+        scanf(" %c", &choice);  // Notice the space before %c to avoid input buffer issues
+        if (choice != 'y' && choice != 'Y') {
+            printf("Quiz not saved.\n");
+            fclose(quiz_file);
+            return;  // Abort saving the quiz
+        }
+        fclose(quiz_file);  // Close file after checking
+    }
 
-    printf("Enter the time duration of the quiz in minutes: ");
-    scanf("%d", &newQuiz.duration);
-    getchar(); // Consume newline
+    printf("Enter time duration in minutes: ");
+    scanf("%d", &duration);
 
-    printf("Enter the number of items in the quiz: ");
-    scanf("%d", &newQuiz.numItems);
-    getchar(); // Consume newline
+    printf("Enter number of items: ");
+    scanf("%d", &num_items);
 
-    if (newQuiz.numItems > MAX_ITEMS) {
-        printf(COLOR_RED "Error: Maximum number of items exceeded.\n" COLOR_RESET);
+    printf("Enter correct answers (no spaces, %d characters): ", num_items);
+    scanf("%s", correct_answers);
+
+    // Validate that the number of correct answers matches the number of items
+    if ((int)strlen(correct_answers) != num_items) {
+        printf("Error: The number of correct answers must match the number of quiz items.\n");
         return;
     }
 
-    printf("\n" COLOR_GREEN "Enter the questions and correct answers:\n" COLOR_RESET);
-    for (i = 0; i < newQuiz.numItems; i++) {
-        printf("Question %d: ", i + 1);
-        fgets(newQuiz.items[i].question, MAX_QUESTION_LENGTH, stdin);
-        newQuiz.items[i].question[strcspn(newQuiz.items[i].question, "\n")] = 0;
+    char full_filename[128];
+    snprintf(full_filename, sizeof(full_filename), "quizzes/%s.quiz", filename);
 
-        printf("Correct Answer for Question %d: ", i + 1);
-        fgets(newQuiz.items[i].correctAnswer, MAX_ANSWER_LENGTH, stdin);
-        newQuiz.items[i].correctAnswer[strcspn(newQuiz.items[i].correctAnswer, "\n")] = 0;
+    FILE *fp = fopen(full_filename, "w");
+    if (fp == NULL) {
+        perror("Failed to create quiz file");
+        return;
     }
 
-    do {
-        int choice;
-        printf("\nAre you done making the quiz?\n");
-        printf("[1] Yes\n");
-        printf("[2] No (You will be prompted for questions again)\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-        getchar(); // Consume newline
+    fprintf(fp, "%d\n%d\n%s\n", duration, num_items, correct_answers);
+    fclose(fp);
 
-        if (choice == 1) {
-            if (saveQuiz(&newQuiz)) {
-                printf(COLOR_GREEN "Quiz '%s' saved successfully as '%s.quiz'.\n" COLOR_RESET, newQuiz.name, newQuiz.filename);
-            } else {
-                printf(COLOR_RED "Error saving the quiz.\n" COLOR_RESET);
-            }
-            done = 1;
-        } else if (choice == 2) {
-            printf(COLOR_YELLOW "You will be prompted to re-enter the quiz details.\n" COLOR_RESET);
-            // In a more advanced system, you might allow editing. For simplicity, we restart.
-            createNewQuiz();
-            return; // Exit this call to createNewQuiz
-        } else {
-            printf(COLOR_RED "Invalid choice. Please try again.\n" COLOR_RESET);
-        }
-    } while (!done);
+    printf("Are you done making the quiz?\n");
+    printf("[1] Yes\n[2] No\nEnter your choice: ");
+    int confirm;
+    scanf("%d", &confirm);
+    if (confirm == 1) {
+        printf("Quiz saved successfully.\n");
+    } else {
+        remove(full_filename);
+        printf("Quiz discarded.\n");
+    }
+
+    sleep(1);
 }
 
-void editExistingQuizzes() {
-    printf(COLOR_YELLOW "This functionality is not implemented yet.\n" COLOR_RESET);
+void edit_existing_quiz() {
+    printf("Editing existing quizzes feature not implemented yet.\n");
+    sleep(1);
 }

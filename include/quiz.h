@@ -1,10 +1,7 @@
 #ifndef QUIZ_H
 #define QUIZ_H
 
-
-// Function prototypes for taking quizzes
-void takeQuizMenu();
-void displayAvailableQuizzes();
-void takeSelectedQuiz(const char *filename);
+void view_take_quizzes();
+void take_quiz();
 
 #endif
