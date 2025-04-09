@@ -14,7 +14,8 @@ void view_student_data() {
         return;
     }
 
-    printf("Students name\tQuiz name\tScore\tDate\n");
+    printf("%-20s %-20s %-10s %-10s\n", "Student Name", "Quiz Name", "Score", "Date");
+    printf("-------------------- -------------------- ---------- ----------\n");
 
     while ((dir = readdir(d)) != NULL) {
         if (strstr(dir->d_name, ".rec")) {
@@ -24,15 +25,24 @@ void view_student_data() {
 
             if (!fp) continue;
 
-            char name[100], section[50], pc[50], score[20];
-            fgets(name, sizeof(name), fp);
-            fgets(section, sizeof(section), fp);
-            fgets(pc, sizeof(pc), fp);
-            fgets(score, sizeof(score), fp);
+            char line[100];
+            char name[100] = "";
+            char section[50] = "";
+            char pc[50] = "";
+            char score_str[20] = "";
+            char file_date[11] = ""; // To store the extracted date
+            char quiz[50] = "";
+            int score_val, total_items;
 
-            char quiz[50];
+            if (fgets(line, sizeof(line), fp)) sscanf(line, "Name: %99[^\n]", name);
+            if (fgets(line, sizeof(line), fp)) sscanf(line, "Section: %49[^\n]", section);
+            if (fgets(line, sizeof(line), fp)) sscanf(line, "PC: %49[^\n]", pc);
+            if (fgets(line, sizeof(line), fp)) sscanf(line, "Score: %d/%d %10[^\n]", &score_val, &total_items, file_date);
+
             sscanf(dir->d_name, "%[^_]", quiz);
-            printf("%s\t%s\t%s", strtok(name + 6, "\n"), quiz, score + 7);
+            snprintf(score_str, sizeof(score_str), "%d/%d", score_val, total_items); // Reformat score
+
+            printf("%-20s %-20s %-10s %-10s\n", name, quiz, score_str, file_date);
 
             fclose(fp);
         }
@@ -40,5 +50,6 @@ void view_student_data() {
 
     closedir(d);
     printf("\n");
-    getchar(); getchar(); // Pause
+    printf("Press Enter to go back to the main menu...\n");
+    getchar();
 }

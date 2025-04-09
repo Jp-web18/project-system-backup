@@ -1,21 +1,27 @@
 #include "config.h"
 
+
+
 int main() {
+    char input_buffer[10];
     int choice;
-    int running = 1; // Flag variable to control the loop
+    int running = 1;
 
     while (running) {
-        
-        system(CLEAR); // or "cls" on Windows
-
-        printf("\033[1;34mWelcome to the QuizWhiz System\033[0m\n\n");
-        printf("[1] Make a Quiz\n");
-        printf("[2] View student's data\n");
-        printf("[3] View and Take Quizes\n");
-        printf("[4] Exit the system\n\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-        getchar(); // Consume the newline character left in the buffer
+        system(CLEAR);
+        printf("%sWelcome to the QuizWhiz System%s\n\n", COLOR_YELLOW, COLOR_RESET);
+        printf("%s[1] Make a Quiz%s\n", COLOR_GREEN, COLOR_RESET);
+        printf("%s[2] View student's data%s\n", COLOR_GREEN, COLOR_RESET);
+        printf("%s[3] View and Take Quizes%s\n", COLOR_GREEN, COLOR_RESET);
+        printf("%s[4] Exit the system%s\n\n", COLOR_RED, COLOR_RESET);
+        printf("%sEnter your choice:%s ", COLOR_YELLOW, COLOR_RESET);
+        printf("%s", COLOR_CYAN);
+        if (fgets(input_buffer, sizeof(input_buffer), stdin) != NULL) {
+            choice = atoi(input_buffer);
+        } else {
+            choice = 0; // Handle potential input error
+        }
+        printf("%s", COLOR_RESET);
 
         switch (choice) {
             case 1:
@@ -29,16 +35,17 @@ int main() {
                 break;
             case 4:
                 printf("Exiting the system...\n");
-                running = 0; // Set the flag to exit the loop
+                running = 0;
                 break;
             default:
-                printf("Invalid choice. Please try again.\n");
+                printf("%sInvalid choice. Please try again.%s\n", COLOR_RED, COLOR_RESET);
                 sleep(1);
         }
     }
 
+
     printf("Press Enter to exit...\n");
-    getchar(); // Wait for user input before exiting
+    getchar();
 
     return 0;
 }

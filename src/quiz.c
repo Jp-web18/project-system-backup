@@ -2,8 +2,9 @@
 
 
 
+
 void view_take_quizzes() {
-    system(CLEAR);  // Use platform-independent CLEAR macro defined in config.h
+    system(CLEAR);
 
     DIR *d;
     struct dirent *dir;
@@ -29,6 +30,7 @@ void view_take_quizzes() {
     int choice;
     printf("\n[1] Take a quiz\n[2] Back to main menu\nEnter your choice: ");
     scanf("%d", &choice);
+    getchar(); // Clear the newline character from the input buffer
 
     if (choice == 1) {
         take_quiz();
@@ -37,15 +39,18 @@ void view_take_quizzes() {
 
 void take_quiz() {
     char filename[100];
-    char student_name[100], section[20], pc_number[10];
+    char student_name[100];
+    char section[20];
+    char pc_number[10];
     char quizname[100];
+    char submission_date[11];
 
     printf("Enter quiz filename (without .quiz): ");
     scanf("%s", quizname);
+    getchar(); // Clear the newline character from the input buffer
 
     snprintf(filename, sizeof(filename), "quizzes/%s.quiz", quizname);
 
-    // Check if the quiz file exists
     if (!file_exists(filename)) {
         printf("Quiz not found.\n");
         sleep(2);
@@ -55,7 +60,6 @@ void take_quiz() {
     char record_file[128];
     snprintf(record_file, sizeof(record_file), "records/%s_%s.rec", quizname, getenv("USER"));
 
-    // Check if the student has already taken the quiz
     if (file_exists(record_file)) {
         printf("You have already taken this quiz. Not allowed to take twice.\n");
         sleep(2);
@@ -69,9 +73,9 @@ void take_quiz() {
     }
 
     int duration, items, score = 0;
-    char correct_answers[100], user_answers[100];
+    char correct_answers[100];
+    char user_answers[100];
 
-    // Read quiz details
     fscanf(fp, "%d\n%d\n%s", &duration, &items, correct_answers);
     fclose(fp);
 
@@ -82,6 +86,8 @@ void take_quiz() {
     scanf("%s", section);
     printf("Enter your PC number: ");
     scanf("%s", pc_number);
+
+    getchar(); // Clear the newline character from the input buffer
 
     for (int i = 0; i < items; i++) {
         printf("Question #%d answer: ", i + 1);
@@ -94,21 +100,29 @@ void take_quiz() {
     scanf("%d", &done);
     if (done != 1) return;
 
-    // Calculate the score
     for (int i = 0; i < items; i++) {
         if (user_answers[i] == correct_answers[i]) score++;
     }
 
     float percentage = ((float)score / items) * 100;
 
-    // Save the result to a record file
+    // Get the current date
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    strftime(submission_date, sizeof(submission_date), "%m/%d/%Y", &tm);
+
+    // Save the result to a record file, aligning with view_student_data
     FILE *rec = fopen(record_file, "w");
-    fprintf(rec, "Name: %s\nSection: %s\nPC: %s\nScore: %d/%d\nPercent: %.2f%%\n",
-            student_name, section, pc_number, score, items, percentage);
-    fprintf(rec, "Answers: %s\nCorrect: %s\n", user_answers, correct_answers);
+    fprintf(rec, "Name: %s\n", student_name);
+    fprintf(rec, "Section: %s\n", section);
+    fprintf(rec, "PC: %s\n", pc_number);
+    fprintf(rec, "Score: %d/%d %s\n", score, items, submission_date); // Combined score and date
+    fprintf(rec, "Percent: %.2f%%\n", percentage);
+    fprintf(rec, "Answers: %s\n", user_answers);
+    fprintf(rec, "Correct: %s\n", correct_answers);
     fclose(rec);
     chmod(record_file, 0444); // Make the record file read-only
 
-    printf("Quiz submitted. Score: %d/%d (%.2f%%)\n", score, items, percentage);
+    printf("Quiz submitted. Score: %d/%d (%.2f%%) on %s\n", score, items, percentage, submission_date);
     sleep(2);
 }

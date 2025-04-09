@@ -13,6 +13,7 @@ void make_quiz_menu() {
         printf("[3] Back to main menu\n\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
+        getchar();  // Clear the newline character from the input buffer
 
         switch (choice) {
             case 1:
