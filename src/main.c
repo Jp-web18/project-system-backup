@@ -5,7 +5,9 @@ int main() {
     int running = 1; // Flag variable to control the loop
 
     while (running) {
+        
         system(CLEAR); // or "cls" on Windows
+
         printf("\033[1;34mWelcome to the QuizWhiz System\033[0m\n\n");
         printf("[1] Make a Quiz\n");
         printf("[2] View and Take Quizes\n");
